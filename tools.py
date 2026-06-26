@@ -1,9 +1,8 @@
 import os
-import asyncio
+import json
 import requests
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
-from langchain_mcp_adapters.client import MultiServerMCPClient
 
 load_dotenv(override=True)
 
@@ -13,52 +12,26 @@ PINECONE_API_KEY    = os.getenv("PINECONE_API_KEY")
 
 llm = ChatGroq(model="llama-3.3-70b-versatile")
 
-# ── Tavily MCP Client (Remote HTTP MCP Server) ──
-mcp_client = MultiServerMCPClient(
-    {
-        "tavily": {
-            "transport": "streamable_http",
-            "url": f"https://mcp.tavily.com/mcp/?tavilyApiKey={TAVILY_API_KEY}"
-        }
-    }
-)
 
-_tavily_tool = None
-
-async def _get_tavily_tool():
-    global _tavily_tool
-    if _tavily_tool is None:
-        tools       = await mcp_client.get_tools()
-        _tavily_tool = next((t for t in tools if t.name == "tavily_search"), None)
-        if not _tavily_tool:
-            raise RuntimeError("tavily_search tool not found")
-    return _tavily_tool
-
-
-def _parse_tavily_result(result) -> str:
-    import json
-    raw = ""
-    if isinstance(result, str):
-        raw = result
-    elif isinstance(result, list):
-        for item in result:
-            if hasattr(item, "text") and item.text:
-                raw += item.text
-            elif isinstance(item, dict) and item.get("text"):
-                raw += item["text"]
-    elif isinstance(result, dict):
-        raw = json.dumps(result)
-
-    if not raw:
-        return str(result)
-
+# ── Tavily Search (Direct API — same data as MCP) ──
+def search_web(query: str, max_results: int = 5) -> str:
+    """Search web via Tavily API."""
     try:
-        data    = json.loads(raw)
-        results = data.get("results", [])
+        response = requests.post(
+            "https://api.tavily.com/search",
+            headers={"Content-Type": "application/json"},
+            json={
+                "api_key":     TAVILY_API_KEY,
+                "query":       query,
+                "max_results": max_results
+            },
+            timeout=15
+        )
+        results = response.json().get("results", [])
         if not results:
-            return raw
+            return "No results found."
         lines = []
-        for i, item in enumerate(results[:5], 1):
+        for i, item in enumerate(results, 1):
             title   = item.get("title", "No title")
             url     = item.get("url", "")
             content = item.get("content", "").strip()
@@ -68,19 +41,8 @@ def _parse_tavily_result(result) -> str:
                 lines.append(snippet)
             lines.append(f"🔗 {url}\n")
         return "\n".join(lines)
-    except Exception:
-        return raw
-
-
-async def tavily_search_async(query: str) -> str:
-    tool   = await _get_tavily_tool()
-    result = await tool.ainvoke({"query": query})
-    return _parse_tavily_result(result)
-
-
-def search_web(query: str) -> str:
-    """Search web via Tavily MCP server."""
-    return asyncio.run(tavily_search_async(query))
+    except Exception as e:
+        return f"Search unavailable: {str(e)}"
 
 
 # ── OpenWeatherMap Direct API ──
@@ -143,7 +105,7 @@ def search_destination_knowledge(destination: str) -> str:
             inputs=[f"Travel information about {destination}"],
             parameters={"input_type": "query"}
         )
-        results   = index.query(
+        results = index.query(
             vector=embedding[0].values,
             top_k=5,
             include_metadata=True
