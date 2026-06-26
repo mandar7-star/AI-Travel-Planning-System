@@ -1,8 +1,10 @@
 # ✈️ AI Travel Planning System
 
-An AI-powered travel planning system built on a **6-agent LangGraph pipeline** that combines **Tavily MCP**, **Pinecone RAG**, **OpenWeatherMap**, and **Groq LLaMA 3.3 70B** to deliver complete, real-time travel plans from a single query.
+An advanced AI-powered **Travel Planning System** built on a **6-Agent LangGraph Pipeline** that delivers complete, real-time travel plans from a single natural language query.
 
-Six specialized agents run in sequence — each fetching real data from a different source and passing enriched context to the next — resulting in a grounded, accurate itinerary built from live information rather than LLM memory alone.
+The system integrates **Tavily MCP** for real-time web search, **Pinecone RAG** for verified destination knowledge retrieval, **OpenWeatherMap** for live weather data, and **Groq LLaMA 3.3 70B** for high-speed reasoning — all orchestrated by **LangGraph** in a sequential multi-agent pipeline.
+
+Each agent has a single focused responsibility and passes enriched context to the next stage. The result is a grounded, accurate **Travel Itinerary** built entirely from live data — not LLM memory alone. The system also maintains persistent session memory using **Supabase Cloud PostgreSQL** via LangGraph checkpointing, so context is preserved across queries.
 
 ---
 
@@ -14,9 +16,21 @@ Six specialized agents run in sequence — each fetching real data from a differ
 - 🧠 **High-Speed Inference** using **Groq LLaMA 3.3 70B**
 - 🌤️ **Live Weather & Forecast** via **OpenWeatherMap API**
 - 🚆 **Smart Travel Mode Detection** — trains and buses for short trips, flights for international
-- 💰 **Budget Breakdown in INR** across budget, mid-range and luxury options
+- 💰 **Complete Budget Breakdown in INR** across budget, mid-range and luxury options
 - 🐘 **Persistent Session Memory** via **Supabase Cloud PostgreSQL**
 - 🖥️ **Interactive Web UI** built with **Streamlit**
+
+---
+
+## ⭐ Key Features
+
+- **Real-Time Travel Intelligence** — integrates live APIs for flights, hotels and weather to provide up-to-date recommendations with source links
+- **RAG-Powered Research** — retrieves verified destination knowledge from a **Pinecone** vector database instead of relying on LLM training data
+- **MCP Integration** — connects to **Tavily's Remote MCP Server** for standardized real-time web search across Flight and Hotel agents
+- **Smart Transport Detection** — automatically identifies trip type and suggests the most suitable transport: trains and buses for short domestic trips, flights for long-distance and international
+- **Context-Aware Planning** — maintains session history using **Supabase PostgreSQL** so the system remembers previous queries
+- **INR Budget Planning** — dedicated Budget Agent calculates complete trip costs in Indian Rupees across three scenarios
+- **Scalable Architecture** — modular agent design makes it easy to add new agents like Visa Agent, Activity Agent or Currency Agent
 
 ---
 
@@ -38,37 +52,39 @@ Budget Agent    →  Groq LLaMA 3.3 70B
 Itinerary Agent →  Groq LLaMA 3.3 70B
 ```
 
+Each agent receives the full output of all previous agents — building a richer, more accurate plan at every step.
+
 ---
 
 ## 🔹 Agent Details
 
 ### 🔬 Research Agent — Pinecone RAG
-Queries the **Pinecone** vector database to retrieve verified destination knowledge — visa requirements, best time to visit, local currency, cultural etiquette and safety tips. Grounds the LLM in real retrieved facts rather than training data alone.
+Queries the **Pinecone** vector database to retrieve verified destination knowledge including visa requirements for Indian citizens, best time to visit, local currency and money tips, cultural etiquette, local transportation options and safety guidelines. By grounding the LLM in retrieved facts rather than training data alone, the research brief is specific, accurate and up to date. The LLM synthesizes the retrieved chunks into a clean, structured research brief that feeds all subsequent agents.
 
 ---
 
 ### 🚆 Travel Agent — Tavily MCP
-Detects trip type automatically. Short-distance domestic trips (under 500km) get **trains, buses and cabs only** — no flights. Long-distance domestic gets trains and flights. International gets flights with fare ranges in INR. All results come from **Tavily MCP** with real source links.
+Automatically detects the trip type before searching. Short-distance domestic trips under 500km like Pune to Nashik get **trains, buses and cabs only** — the LLM is explicitly instructed not to suggest flights. Long-distance domestic trips get both trains and flights with a value-for-money comparison. International trips get airlines, flight durations from major Indian cities and fare ranges in INR. All results are sourced from **Tavily MCP** with real booking platform links.
 
 ---
 
 ### 🏨 Hotel Agent — Tavily MCP
-Searches **Tavily MCP** for current hotel options across budget, mid-range and luxury categories with prices in INR, best areas to stay, and direct booking links from platforms like MakeMyTrip and Booking.com.
+Searches **Tavily MCP** for current hotel options at the destination across budget, mid-range and luxury categories. Returns hotel names, approximate prices per night in INR, best areas to stay and direct booking links from platforms like MakeMyTrip, Booking.com and Hotels.com. The LLM summarizes and ranks the options based on value and location.
 
 ---
 
 ### 🌤️ Weather Agent — OpenWeatherMap API
-Fetches live current weather and a 5-period forecast from **OpenWeatherMap**. Includes temperature, humidity, wind speed and conditions. The LLM adds packing recommendations and weather-based activity tips.
+Fetches live current weather conditions and a 5-period short-term forecast directly from the **OpenWeatherMap API**. Captures temperature, feels-like temperature, humidity, wind speed and weather conditions. The LLM interprets the data and adds practical travel recommendations — clothing and packing tips, weather-appropriate activity suggestions and any weather warnings the traveler should be aware of.
 
 ---
 
 ### 💰 Budget Agent — Groq LLaMA 3.3 70B
-Generates a complete trip cost breakdown in **INR** covering flights, accommodation, daily food, local transport, activities, shopping and travel insurance. Provides three total cost scenarios — budget, mid-range and luxury.
+Takes the travel and hotel information from previous agents and generates a complete trip cost breakdown in **INR**. Covers flights or ground transport, accommodation per night and total, daily food budget across budget and splurge options, local transportation, activities and sightseeing, shopping and miscellaneous, and travel insurance. Provides three total trip cost scenarios — budget, mid-range and luxury — with practical money-saving tips.
 
 ---
 
 ### 🗓️ Itinerary Agent — Groq LLaMA 3.3 70B
-Synthesizes all previous agent outputs into a complete **day-by-day Travel Itinerary** with timings, hotel and transport recommendations, local food suggestions, daily budget in INR, visa and cultural reminders, and useful apps for the destination.
+Acts as the final synthesis layer. Takes all outputs from the Research, Travel, Hotel, Weather and Budget agents and generates a comprehensive **day-by-day Travel Itinerary** with specific timings, hotel and transport recommendations, must-try local foods for each day, daily budget estimates in INR, visa and cultural reminders, and a list of useful apps and emergency contacts for the destination.
 
 ---
 
@@ -244,5 +260,5 @@ Dubai weekend getaway from Mumbai
 
 **Mandar Borhade**
 
-Linkedin: https://www.linkedin.com/in/mandarborhade
+LinkedIn: https://www.linkedin.com/in/mandarborhade
 GitHub: https://github.com/mandar7-star
