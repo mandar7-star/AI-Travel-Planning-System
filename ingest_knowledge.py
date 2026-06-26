@@ -1,6 +1,3 @@
-# Run this ONCE locally to populate Pinecone with travel knowledge
-# Command: python ingest_knowledge.py
-
 import os
 from pinecone import Pinecone
 from dotenv import load_dotenv
