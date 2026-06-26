@@ -1,10 +1,10 @@
 # ✈️ AI Travel Planning System
 
-An advanced AI-powered **Travel Planning System** built on a **6-Agent LangGraph Pipeline** that delivers complete, real-time travel plans from a single natural language query.
+An Advanced AI-powered **Travel Planning System** built on a **6-Agent LangGraph Pipeline** that delivers complete, real-time travel plans from a single natural language query.
 
 The system integrates **Tavily MCP** for real-time web search, **Pinecone RAG** for verified destination knowledge retrieval, **OpenWeatherMap** for live weather data, and **Groq LLaMA 3.3 70B** for high-speed reasoning — all orchestrated by **LangGraph** in a sequential multi-agent pipeline.
 
-Each agent has a single focused responsibility and passes enriched context to the next stage. The result is a grounded, accurate **Travel Itinerary** built entirely from live data — not LLM memory alone. The system also maintains persistent session memory using **Supabase Cloud PostgreSQL** via LangGraph checkpointing, so context is preserved across queries.
+Each Agent has a single focused responsibility and passes enriched context to the next stage. The result is a grounded, accurate **Travel Itinerary** built entirely from live data — not LLM memory alone. The system also maintains persistent session memory using **Supabase Cloud PostgreSQL** via LangGraph checkpointing, so context is preserved across queries.
 
 ---
 
@@ -143,7 +143,6 @@ PINECONE_API_KEY=your_pinecone_api_key
 DATABASE_URL=postgresql://username:password@host:5432/db_name
 ```
 
-> ⚠️ Never commit your `.env` file. It is already in `.gitignore`.
 
 ---
 
@@ -261,4 +260,5 @@ Dubai weekend getaway from Mumbai
 **Mandar Borhade**
 
 LinkedIn: https://www.linkedin.com/in/mandarborhade
+
 GitHub: https://github.com/mandar7-star
